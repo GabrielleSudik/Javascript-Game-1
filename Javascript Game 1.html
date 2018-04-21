@@ -11,14 +11,20 @@ Did you know if you drag a text document onto a web browser, it will print the c
 
 var canvas;
 var canvasContext;
+var ballX = 50; /*this will be horizontal position of ball*/
 
 window.onload = function(){
   console.log("window.onload starts the script only after the page is loaded.");
 
   canvas = document.getElementById('gameCanvas');
   canvasContext = canvas.getContext('2d');
-  canvasContext.fillStyle = 'black';
-  canvasContext.fillRect(0,0, canvas.width, canvas.height);
+
+/*
+you coded this out instead of moving it because you want the notes. 
+*/
+
+  //canvasContext.fillStyle = 'black';
+  //canvasContext.fillRect(0,0, canvas.width, canvas.height);
   /* in last line, 0,0 was x,y coord in top left.
      canvas.width, canvas.height was x,y in bottom right -- ie, 800, 600
      it's the reverse of classical math coords */
@@ -27,13 +33,43 @@ window.onload = function(){
      canvasContext.fillRect(100,200,50,25); */
   /* note that the first two numbers say where it starts
      and the last two say its size */
-  canvasContext.fillStyle = 'orange';
-  canvasContext.fillRect(300,250,200,100);
-  canvasContext.fillStyle = 'blue';
-  canvasContext.fillRect(350,300,200,100);
+  //canvasContext.fillStyle = 'orange';
+  //canvasContext.fillRect(300,250,200,100);
+  //canvasContext.fillStyle = 'blue';
+  //canvasContext.fillRect(350,300,200,100);
   /* later shapes sit on top of earlier shapes if they overlap */
+  //canvasContext.fillStyle = 'white';
+  //canvasContext.fillRect(canvas.width/2,canvas.height/3,200,100);
+
+  /* This would "manually" call the function three time.
+  drawEverything();
+  drawEverything();
+  drawEverything();
+    Instead, we'll use a function that repeatedly calls it.
+  */
+
+  setInterval(drawEverything, 100);
+  //1000 = one second
+  //500 = half second, etc.
+  //fyi, the ball will hit the right edge at position 800 -- watch the console tracker!
+}
+
+function drawEverything(){
+  ballX = ballX + 10;
+
+  canvasContext.fillStyle = 'black';
+  canvasContext.fillRect(0,0, canvas.width, canvas.height);
   canvasContext.fillStyle = 'white';
-  canvasContext.fillRect(canvas.width/2,canvas.height/3,200,100);
+  canvasContext.fillRect(225,210,200,200);
+  canvasContext.fillStyle = 'red';
+  canvasContext.fillRect(ballX,200,50,25); /* moves ball right */
+  console.log("drawEverything is called. ballX = " + ballX);
+
+  //you can change different placement numbers to change what the "ball" does
+  //for example:
+  //canvasContext.fillRect(50,200,ballX+50,25); /* makes ball grow to the right */
+  //canvasContext.fillRect(ballX,200,ballX-5,25); /* makes ball move AND grow */
+  
 }
 
 </script>
