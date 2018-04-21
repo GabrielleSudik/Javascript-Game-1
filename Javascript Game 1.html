@@ -1,0 +1,40 @@
+<html>
+Did you know if you drag a text document onto a web browser, it will print the contents to screen? 
+<br/>
+<h1>Groovy.</h1>
+<p>If it's a text doc, it will print verbatim. If it's an html doc, it will print as html.</p>
+<p>The console is useful because it will show errors in your JS.</p>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+
+var canvas;
+var canvasContext;
+
+window.onload = function(){
+  console.log("window.onload starts the script only after the page is loaded.");
+
+  canvas = document.getElementById('gameCanvas');
+  canvasContext = canvas.getContext('2d');
+  canvasContext.fillStyle = 'black';
+  canvasContext.fillRect(0,0, canvas.width, canvas.height);
+  /* in last line, 0,0 was x,y coord in top left.
+     canvas.width, canvas.height was x,y in bottom right -- ie, 800, 600
+     it's the reverse of classical math coords */
+  /* this next bit is an example of using coords to place a rectangle:
+     canvasContext.fillStyle = 'red';
+     canvasContext.fillRect(100,200,50,25); */
+  /* note that the first two numbers say where it starts
+     and the last two say its size */
+  canvasContext.fillStyle = 'orange';
+  canvasContext.fillRect(300,250,200,100);
+  canvasContext.fillStyle = 'blue';
+  canvasContext.fillRect(350,300,200,100);
+  /* later shapes sit on top of earlier shapes if they overlap */
+  canvasContext.fillStyle = 'white';
+  canvasContext.fillRect(canvas.width/2,canvas.height/3,200,100);
+}
+
+</script>
+</html>
