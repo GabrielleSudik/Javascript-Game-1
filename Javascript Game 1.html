@@ -48,21 +48,33 @@ you coded this out instead of moving it because you want the notes.
     Instead, we'll use a function that repeatedly calls it.
   */
 
-  setInterval(drawEverything, 100);
+  var framesPerSecond = 30;
+  /* setInterval(callBoth, 1000/framesPerSecond); commented out, replaced with this: */
+
+  setInterval(function(){
+      drawEverything();
+      moveEverything();
+    }, 1000/framesPerSecond);
+
+//see how that function doesn't have a name? that's ok when you only call it in one place.
+
+
   //1000 = one second
   //500 = half second, etc.
   //fyi, the ball will hit the right edge at position 800 -- watch the console tracker!
+  //we originally just set the timing as a number. 
+  //using framesPerSecond helps us read the code more easily.
 }
 
 function drawEverything(){
-  ballX = ballX + 10;
+  
 
   canvasContext.fillStyle = 'black';
   canvasContext.fillRect(0,0, canvas.width, canvas.height);
   canvasContext.fillStyle = 'white';
-  canvasContext.fillRect(225,210,200,200);
+  canvasContext.fillRect(10,210,10,100);
   canvasContext.fillStyle = 'red';
-  canvasContext.fillRect(ballX,200,50,25); /* moves ball right */
+  canvasContext.fillRect(ballX,200,20,20); /* moves ball right */
   console.log("drawEverything is called. ballX = " + ballX);
 
   //you can change different placement numbers to change what the "ball" does
@@ -70,6 +82,18 @@ function drawEverything(){
   //canvasContext.fillRect(50,200,ballX+50,25); /* makes ball grow to the right */
   //canvasContext.fillRect(ballX,200,ballX-5,25); /* makes ball move AND grow */
   
+}
+
+function moveEverything(){
+  ballX = ballX + 10;
+}
+
+//the first time you wrote this, you put this function here.
+//but they only place it's going to be used is up in setInterval.
+//so comment it out here, and put this function "inline" in set interval.
+function callBoth(){
+  drawEverything();
+  moveEverything();
 }
 
 </script>
