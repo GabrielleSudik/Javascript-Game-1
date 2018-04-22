@@ -1,9 +1,7 @@
 <html>
-Did you know if you drag a text document onto a web browser, it will print the contents to screen? 
-<br/>
-<h1>Groovy.</h1>
-<p>If it's a text doc, it will print verbatim. If it's an html doc, it will print as html.</p>
-<p>The console is useful because it will show errors in your JS.</p>
+
+<h1>Gabrielle's First JavaScript Game</h1>
+
 
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 
@@ -13,12 +11,28 @@ var canvas;
 var canvasContext;
 var ballX = 50; /*this will be horizontal position of ball*/
 var ballSpeedX = 10;
+var ballY = 50;
+var ballSpeedY = 4;
+var paddleOneY = 250;
+const PADDLE_HEIGHT = 100; //const cannot change during the program
+  //done in all caps to alert you when you use it elsewhere in program.
+  //this is optional, but good for reading code.
 
 window.onload = function(){
   console.log("window.onload starts the script only after the page is loaded.");
 
   canvas = document.getElementById('gameCanvas');
   canvasContext = canvas.getContext('2d');
+
+  //basically, this function watches for "events" (ie, stuff that happens)
+  //and calls the function below that gets the mouse position
+  //'mousemove' is the event the program watches for 
+  //(there are others like mouseclick, scroll, etc.)
+  canvas.addEventListener('mousemove',
+	function(evt) {
+		var mousePos = calculateMousePos(evt);
+		paddleOneY = mousePos.y - (PADDLE_HEIGHT/2);
+	});
 
 /*
 you coded this out instead of moving it because you want the notes. 
@@ -65,21 +79,35 @@ you coded this out instead of moving it because you want the notes.
 
 function drawEverything(){
   
-  //originally, drawEverything contained the details of the color blocks
-  //but to make code cleaner and more flexible, you made a new function below
-  //then called it three times, passing the 5 required parameters
+  //originally, drawEverything contained the details of the color blocks (and circles)
+  //but to make code cleaner and more flexible, you made new functions below
+  //then called them, passing the required parameters
 
+  //PLAY AREA:
   //canvasContext.fillStyle = 'black';
   //canvasContext.fillRect(0,0, canvas.width, canvas.height);
   colorRect(0,0, canvas.width, canvas.height, 'black');  /*background*/
 
+  //PLAYER PADDLE:
   //canvasContext.fillStyle = 'white';
   //canvasContext.fillRect(10,210,10,100);
-  colorRect(10,210,10,100, 'white');  /*player paddle*/
+  colorRect(5,paddleOneY,10,PADDLE_HEIGHT, 'white');  /*player paddle*/
 
+  //BALL:
   //canvasContext.fillStyle = 'red';
   //canvasContext.fillRect(ballX,200,20,20); 
-  colorRect(ballX,200,20,20, 'red');  /*ball*/
+  //colorRect(ballX,200,20,20, 'red');  /*ball*/
+
+  //here's the ball as a circle:
+  //canvasContext.fillStyle = 'red';
+  //canvasContext.beginPath();
+  //canvasContext.arc(ballX, 100, 15, 0, Math.PI*2, true); 
+	//there is no circle function in JS but there is an arc function.
+	//ballX and 100 are coordinates of starting place.
+	//0 and Math.PI*2 address the radia. changing the numbers will cut off slices.
+	//true shows how much of the circle is shown (matters more if not a full circle)
+  //canvasContext.fill();
+  colorCircle(ballX, ballY, 15, 'red'); /*round ball*/
 
   console.log("drawEverything is called. ballX = " + ballX);
 
@@ -94,14 +122,24 @@ function moveEverything(){
   ballX = ballX + ballSpeedX;
   //ballSpeedX = ballSpeedX + 1; this would make ball accelerate if we wanted
 
+  ballY = ballY + ballSpeedY;
+
   //make it bounce off right wall:
   if (ballX > canvas.width) {
     ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
   }
 
+  if (ballY > canvas.height) {
+    ballSpeedY = -ballSpeedY;  /*negative makes it go the other way*/
+  }
+
   //make it bounce off left wall:
   if (ballX < 0) {
     ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+  }
+
+  if (ballY < 0) {
+    ballSpeedY = -ballSpeedY;  /*negative makes it go the other way*/
   }
 }
 
@@ -118,6 +156,29 @@ function callBoth(){
 function colorRect(leftX, topY, width, height, drawColor){
   canvasContext.fillStyle = drawColor;
   canvasContext.fillRect(leftX, topY, width, height);
+}
+
+function colorCircle(centerX, centerY, radius, drawColor) {
+  canvasContext.fillStyle = drawColor;
+  canvasContext.beginPath();
+  canvasContext.arc(centerX, centerY, 15, 0, Math.PI*2, true); 
+  canvasContext.fill();
+}
+
+//this next one is more technical than the others.
+//it controls the paddle with the mouse.
+//basically, this gets the position of mouse X and Y
+//and returns info about the coordinates.
+function calculateMousePos(evt) {
+  var rect = canvas.getBoundingClientRect();
+  var root = document.documentElement;
+  var mouseX = evt.clientX - rect.left - root.scrollLeft;
+  var mouseY = evt.clientY - rect.top - root.scrollTop;
+  return {
+	x:mouseX,
+	y:mouseY
+  };
+
 }
 
 </script>
