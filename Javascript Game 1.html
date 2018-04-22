@@ -18,6 +18,12 @@ const PADDLE_HEIGHT = 100; //const cannot change during the program
   //done in all caps to alert you when you use it elsewhere in program.
   //this is optional, but good for reading code.
 
+var paddleTwoY = 250;
+const PADDLE_WIDTH = 10;
+
+var playerOneScore = 0;
+var playerTwoScore = 0;
+
 window.onload = function(){
   console.log("window.onload starts the script only after the page is loaded.");
 
@@ -91,7 +97,10 @@ function drawEverything(){
   //PLAYER PADDLE:
   //canvasContext.fillStyle = 'white';
   //canvasContext.fillRect(10,210,10,100);
-  colorRect(5,paddleOneY,10,PADDLE_HEIGHT, 'white');  /*player paddle*/
+  colorRect(0,paddleOneY,PADDLE_WIDTH,PADDLE_HEIGHT, 'white');  /*player paddle*/
+
+  //COMPUTER PADDLE:
+  colorRect(canvas.width-PADDLE_WIDTH,paddleTwoY,PADDLE_WIDTH,PADDLE_HEIGHT, 'white');  /*computer paddle*/
 
   //BALL:
   //canvasContext.fillStyle = 'red';
@@ -116,9 +125,14 @@ function drawEverything(){
   //canvasContext.fillRect(50,200,ballX+50,25); /* makes ball grow to the right */
   //canvasContext.fillRect(ballX,200,ballX-5,25); /* makes ball move AND grow */
   
+  canvasContext.fillText(playerOneScore, 100, 100); //the two numbers are the x,y coords.
+  canvasContext.fillText(playerTwoScore, canvas.width-100, 100);
 }
 
 function moveEverything(){
+
+  computerMovement(); /* calls function that moves computer paddle */
+
   ballX = ballX + ballSpeedX;
   //ballSpeedX = ballSpeedX + 1; this would make ball accelerate if we wanted
 
@@ -126,7 +140,15 @@ function moveEverything(){
 
   //make it bounce off right wall:
   if (ballX > canvas.width) {
-    ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+    //ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+    if (ballY > paddleTwoY && 
+        ballY < paddleTwoY+PADDLE_HEIGHT){
+	  ballSpeedX = -ballSpeedX;
+	}
+    else {
+	ballReset();
+	playerOneScore ++;
+    }
   }
 
   if (ballY > canvas.height) {
@@ -135,7 +157,15 @@ function moveEverything(){
 
   //make it bounce off left wall:
   if (ballX < 0) {
-    ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+    //ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+    if (ballY > paddleOneY && 
+        ballY < paddleOneY+PADDLE_HEIGHT){
+	  ballSpeedX = -ballSpeedX;
+	}
+    else {
+	ballReset();
+	playerTwoScore ++;
+    }
   }
 
   if (ballY < 0) {
@@ -179,6 +209,27 @@ function calculateMousePos(evt) {
 	y:mouseY
   };
 
+}
+
+//puts ball in center if it wanders off left side of screen (ie, misses player paddle)
+function ballReset() {
+  ballSpeedX = -ballSpeedX; /* reverses ball direction when it resets */
+  ballX = canvas.width/2;
+  ballY = canvas.height/2;
+}
+
+//make right side controller move via computer instructions:
+//the +/- 35 stuff keeps the computer paddles from moving around TOO much as it follows the ball
+//otherwise it's shaky and jerky.
+function computerMovement() {
+  var paddleTwoYCenter = paddleTwoY + (PADDLE_HEIGHT/2); //gets center of computer paddle
+
+  if(paddleTwoYCenter < ballY-35){
+    paddleTwoY += 6;
+  }
+  else if (paddleTwoYCenter > ballY+35){
+    paddleTwoY -= 6;
+  }
 }
 
 </script>
