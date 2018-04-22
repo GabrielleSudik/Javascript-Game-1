@@ -12,6 +12,7 @@ Did you know if you drag a text document onto a web browser, it will print the c
 var canvas;
 var canvasContext;
 var ballX = 50; /*this will be horizontal position of ball*/
+var ballSpeedX = 10;
 
 window.onload = function(){
   console.log("window.onload starts the script only after the page is loaded.");
@@ -33,10 +34,6 @@ you coded this out instead of moving it because you want the notes.
      canvasContext.fillRect(100,200,50,25); */
   /* note that the first two numbers say where it starts
      and the last two say its size */
-  //canvasContext.fillStyle = 'orange';
-  //canvasContext.fillRect(300,250,200,100);
-  //canvasContext.fillStyle = 'blue';
-  //canvasContext.fillRect(350,300,200,100);
   /* later shapes sit on top of earlier shapes if they overlap */
   //canvasContext.fillStyle = 'white';
   //canvasContext.fillRect(canvas.width/2,canvas.height/3,200,100);
@@ -68,13 +65,22 @@ you coded this out instead of moving it because you want the notes.
 
 function drawEverything(){
   
+  //originally, drawEverything contained the details of the color blocks
+  //but to make code cleaner and more flexible, you made a new function below
+  //then called it three times, passing the 5 required parameters
 
-  canvasContext.fillStyle = 'black';
-  canvasContext.fillRect(0,0, canvas.width, canvas.height);
-  canvasContext.fillStyle = 'white';
-  canvasContext.fillRect(10,210,10,100);
-  canvasContext.fillStyle = 'red';
-  canvasContext.fillRect(ballX,200,20,20); /* moves ball right */
+  //canvasContext.fillStyle = 'black';
+  //canvasContext.fillRect(0,0, canvas.width, canvas.height);
+  colorRect(0,0, canvas.width, canvas.height, 'black');  /*background*/
+
+  //canvasContext.fillStyle = 'white';
+  //canvasContext.fillRect(10,210,10,100);
+  colorRect(10,210,10,100, 'white');  /*player paddle*/
+
+  //canvasContext.fillStyle = 'red';
+  //canvasContext.fillRect(ballX,200,20,20); 
+  colorRect(ballX,200,20,20, 'red');  /*ball*/
+
   console.log("drawEverything is called. ballX = " + ballX);
 
   //you can change different placement numbers to change what the "ball" does
@@ -85,15 +91,33 @@ function drawEverything(){
 }
 
 function moveEverything(){
-  ballX = ballX + 10;
+  ballX = ballX + ballSpeedX;
+  //ballSpeedX = ballSpeedX + 1; this would make ball accelerate if we wanted
+
+  //make it bounce off right wall:
+  if (ballX > canvas.width) {
+    ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+  }
+
+  //make it bounce off left wall:
+  if (ballX < 0) {
+    ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+  }
 }
 
 //the first time you wrote this, you put this function here.
 //but they only place it's going to be used is up in setInterval.
 //so comment it out here, and put this function "inline" in set interval.
+/*
 function callBoth(){
   drawEverything();
   moveEverything();
+}
+*/
+
+function colorRect(leftX, topY, width, height, drawColor){
+  canvasContext.fillStyle = drawColor;
+  canvasContext.fillRect(leftX, topY, width, height);
 }
 
 </script>
