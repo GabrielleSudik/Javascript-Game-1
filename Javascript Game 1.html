@@ -23,6 +23,8 @@ const PADDLE_WIDTH = 10;
 
 var playerOneScore = 0;
 var playerTwoScore = 0;
+const WINNING_SCORE = 2;  /*start low for testing*/
+var showingWinScreen = false;
 
 window.onload = function(){
   console.log("window.onload starts the script only after the page is loaded.");
@@ -39,6 +41,8 @@ window.onload = function(){
 		var mousePos = calculateMousePos(evt);
 		paddleOneY = mousePos.y - (PADDLE_HEIGHT/2);
 	});
+
+  canvas.addEventListener('mousedown', handleMouseClick);
 
 /*
 you coded this out instead of moving it because you want the notes. 
@@ -94,6 +98,20 @@ function drawEverything(){
   //canvasContext.fillRect(0,0, canvas.width, canvas.height);
   colorRect(0,0, canvas.width, canvas.height, 'black');  /*background*/
 
+  if(showingWinScreen){
+    canvasContext.fillStyle = 'yellow';
+    if (playerOneScore >= WINNING_SCORE){
+      canvasContext.fillText("You won!", 350, 300);
+    }
+    else if (playerTwoScore >= WINNING_SCORE){
+      canvasContext.fillText("The computer won!", 350, 300);
+    };
+    canvasContext.fillText("Click to continue", 335, 400); //the two numbers are the x,y coords.
+    return; /* return ends this function */
+  }
+
+  drawNet(); /* calls function that draws the net. placed outside/after the win screen option */
+
   //PLAYER PADDLE:
   //canvasContext.fillStyle = 'white';
   //canvasContext.fillRect(10,210,10,100);
@@ -131,6 +149,10 @@ function drawEverything(){
 
 function moveEverything(){
 
+  if(showingWinScreen){
+    return;  /* return alone just ends the function */
+  }
+
   computerMovement(); /* calls function that moves computer paddle */
 
   ballX = ballX + ballSpeedX;
@@ -144,10 +166,15 @@ function moveEverything(){
     if (ballY > paddleTwoY && 
         ballY < paddleTwoY+PADDLE_HEIGHT){
 	  ballSpeedX = -ballSpeedX;
+	  
+  	  //next part changes angle of rebound, to make game trickier:
+	  var deltaY = ballY - (paddleTwoY+PADDLE_HEIGHT/2);
+	  ballSpeedY = deltaY * 0.33;
 	}
     else {
+
+	playerOneScore ++; /*put before ballReset to end game properly*/
 	ballReset();
-	playerOneScore ++;
     }
   }
 
@@ -161,10 +188,15 @@ function moveEverything(){
     if (ballY > paddleOneY && 
         ballY < paddleOneY+PADDLE_HEIGHT){
 	  ballSpeedX = -ballSpeedX;
+
+  	  //next part changes angle of rebound, to make game trickier:
+	  var deltaY = ballY - (paddleOneY+PADDLE_HEIGHT/2);
+	  ballSpeedY = deltaY * 0.33;
 	}
     else {
+
+	playerTwoScore ++; /*put before ballReset to end game properly*/
 	ballReset();
-	playerTwoScore ++;
     }
   }
 
@@ -213,6 +245,12 @@ function calculateMousePos(evt) {
 
 //puts ball in center if it wanders off left side of screen (ie, misses player paddle)
 function ballReset() {
+  if(playerOneScore >= WINNING_SCORE ||
+     playerTwoScore >= WINNING_SCORE){
+	//playerOneScore = 0; /* you could put this line here, but then couldn't display final score */
+	//playerTwoScore = 0;  /* you could put this line here, but then couldn't display final score */
+	showingWinScreen = true;
+     }
   ballSpeedX = -ballSpeedX; /* reverses ball direction when it resets */
   ballX = canvas.width/2;
   ballY = canvas.height/2;
@@ -229,6 +267,21 @@ function computerMovement() {
   }
   else if (paddleTwoYCenter > ballY+35){
     paddleTwoY -= 6;
+  }
+}
+
+//to restart game on mouse click:
+function handleMouseClick(evt){
+  if(showingWinScreen){
+    	playerOneScore = 0;
+	playerTwoScore = 0;
+	showingWinScreen = false;
+  }
+}
+
+function drawNet(){
+  for (var i=0; i <canvas.height; i+=40){
+    colorRect (canvas.width/2-1, i, 2, 20, 'white');
   }
 }
 
