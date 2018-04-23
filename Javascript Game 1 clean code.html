@@ -1,0 +1,207 @@
+<html>
+
+<h3>It's Pong!</h3>
+<p>Control the left paddle by moving the mouse up and down. First player to 5 wins.</p>
+
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+
+var canvas;
+var canvasContext;
+
+var ballX = 50; /*this will be horizontal position of ball*/
+var ballSpeedX = 10;
+var ballY = 50; /*this will be vertical position of ball*/
+var ballSpeedY = 4;
+
+var paddleOneY = 250;
+var paddleTwoY = 250;
+const PADDLE_HEIGHT = 100; 
+const PADDLE_WIDTH = 10;
+
+var playerOneScore = 0;
+var playerTwoScore = 0;
+const WINNING_SCORE = 5;  /*start low for testing*/
+var showingWinScreen = false;
+
+window.onload = function(){
+  console.log("window.onload starts the script only after the page is loaded.");
+
+  canvas = document.getElementById('gameCanvas');
+  canvasContext = canvas.getContext('2d');
+
+  //this will watch for mouse movement during gameplay:
+  canvas.addEventListener('mousemove',
+	function(evt) {
+		var mousePos = calculateMousePos(evt);
+		paddleOneY = mousePos.y - (PADDLE_HEIGHT/2);
+	});
+
+  //this will watch for a mouse click during the game win screen:
+  canvas.addEventListener('mousedown', handleMouseClick);
+
+  var framesPerSecond = 30; /*not needed, but added so code below is easier to understand*/
+
+  setInterval(function(){
+      drawEverything();
+      moveEverything();
+    }, 1000/framesPerSecond);   /*1000 = one second*/
+
+//see how that function doesn't have a name? that's ok when you only call it in one place.
+}
+
+function drawEverything(){
+  
+  //PLAY AREA. Always appears.
+  colorRect(0,0, canvas.width, canvas.height, 'black');  
+
+  //WIN SCREEN. Appears when someone wins the game.
+  if(showingWinScreen){
+    canvasContext.fillStyle = 'yellow';
+    if (playerOneScore >= WINNING_SCORE){
+      canvasContext.fillText("You won!", 300, 300); /*the two numbers are the x,y coords*/
+    }
+    else if (playerTwoScore >= WINNING_SCORE){
+      canvasContext.fillText("The computer won!", 300, 300);
+    };
+    canvasContext.fillText("Click to continue", 420, 300);
+    return; /*return ends the drawEverything function*/
+  }
+
+  drawNet(); /*calls function that draws the net.*/
+
+  //PLAYER PADDLE:
+  colorRect(0,paddleOneY,PADDLE_WIDTH,PADDLE_HEIGHT, 'white');
+
+  //COMPUTER PADDLE:
+  colorRect(canvas.width-PADDLE_WIDTH,paddleTwoY,PADDLE_WIDTH,PADDLE_HEIGHT, 'white');
+
+  //BALL: 
+  colorCircle(ballX, ballY, 15, 'red'); 
+
+  canvasContext.fillText(playerOneScore, 100, 100); 
+  canvasContext.fillText(playerTwoScore, canvas.width-100, 100);
+}
+
+function moveEverything(){
+
+  if(showingWinScreen){
+    return;  /*return ends the moveEverything function*/
+  }
+
+  computerMovement(); /*calls function that moves computer paddle*/
+
+  ballX = ballX + ballSpeedX;
+  ballY = ballY + ballSpeedY;
+
+  //make it bounce off right wall:
+  if (ballX > canvas.width) {
+    //ballSpeedX = -ballSpeedX;  /*negative makes it go the other way*/
+    if (ballY > paddleTwoY && 
+        ballY < paddleTwoY+PADDLE_HEIGHT){
+	  ballSpeedX = -ballSpeedX;
+	  
+  	  //next part changes angle of rebound, to make game trickier:
+	  var deltaY = ballY - (paddleTwoY+PADDLE_HEIGHT/2);
+	  ballSpeedY = deltaY * 0.33;
+	}
+    else {
+	playerOneScore ++; /*put before ballReset to end game properly*/
+	ballReset();
+    }
+  }
+
+  if (ballY > canvas.height) {
+    ballSpeedY = -ballSpeedY;
+  }
+
+  //make it bounce off left wall:
+  if (ballX < 0) {
+    //ballSpeedX = -ballSpeedX;
+    if (ballY > paddleOneY && 
+        ballY < paddleOneY+PADDLE_HEIGHT){
+	  ballSpeedX = -ballSpeedX;
+
+  	  //next part changes angle of rebound, to make game trickier:
+	  var deltaY = ballY - (paddleOneY+PADDLE_HEIGHT/2);
+	  ballSpeedY = deltaY * 0.33;
+	}
+    else {
+	playerTwoScore ++; /*put before ballReset to end game properly*/
+	ballReset();
+    }
+  }
+
+  if (ballY < 0) {
+    ballSpeedY = -ballSpeedY;
+  }
+}
+
+function colorRect(leftX, topY, width, height, drawColor){
+  canvasContext.fillStyle = drawColor;
+  canvasContext.fillRect(leftX, topY, width, height);
+}
+
+function colorCircle(centerX, centerY, radius, drawColor) {
+  canvasContext.fillStyle = drawColor;
+  canvasContext.beginPath();
+  canvasContext.arc(centerX, centerY, 15, 0, Math.PI*2, true); 
+  canvasContext.fill();
+}
+
+//this gets the position of mouse X and Y coords
+function calculateMousePos(evt) {
+  var rect = canvas.getBoundingClientRect();
+  var root = document.documentElement;
+  var mouseX = evt.clientX - rect.left - root.scrollLeft;
+  var mouseY = evt.clientY - rect.top - root.scrollTop;
+  return {
+	x:mouseX,
+	y:mouseY
+  };
+
+}
+
+//puts ball in center if it wanders off side of screen (ie, player misses)
+function ballReset() {
+  if(playerOneScore >= WINNING_SCORE ||
+     playerTwoScore >= WINNING_SCORE){
+	showingWinScreen = true; /*prevents ball reset to show win screen instead*/
+     }
+  ballSpeedX = -ballSpeedX; /*reverses ball direction when it resets*/
+  ballX = canvas.width/2; /*centers*/
+  ballY = canvas.height/2; /*centers*/
+}
+
+//computer's paddle tracks motion of ball:
+function computerMovement() {
+  var paddleTwoYCenter = paddleTwoY + (PADDLE_HEIGHT/2); /*gets center of computer paddle*/
+
+  if(paddleTwoYCenter < ballY-35){
+    paddleTwoY += 6;
+  }
+  else if (paddleTwoYCenter > ballY+35){
+    paddleTwoY -= 6;
+  }
+}
+
+//to restart game on mouse click:
+function handleMouseClick(evt){
+  if(showingWinScreen){
+    	playerOneScore = 0;
+	playerTwoScore = 0;
+	showingWinScreen = false;
+  }
+}
+
+//draws a dashed line down middle of play field:
+function drawNet(){
+  for (var i=0; i <canvas.height; i+=40){
+    colorRect (canvas.width/2-1, i, 2, 20, 'white');
+  }
+}
+
+</script>
+</html>
